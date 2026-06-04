@@ -116,5 +116,5 @@ app.get("*", (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Agent running at http://localhost:${PORT}`);
+  console.log(`NEW SERVER CODE RUNNING - Agent running at http://localhost:${PORT}`);
 });
