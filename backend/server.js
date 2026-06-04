@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Debug route
+// Debug route to check backend and Gemini key
 app.get("/api/debug", (req, res) => {
   res.json({
     status: "backend working",
@@ -16,7 +16,7 @@ app.get("/api/debug", (req, res) => {
   });
 });
 
-// Gemini agent route
+// Gemini Portfolio Agent route
 app.post("/api/agent", async (req, res) => {
   console.log("Agent route hit");
   console.log("Request body:", req.body);
@@ -57,7 +57,7 @@ app.post("/api/agent", async (req, res) => {
       messages = [{ role: "user", content: req.body.input }];
     }
 
-    // Clean messages
+    // Clean valid messages only
     const cleanMessages = messages
       .filter((m) => m && (m.role === "user" || m.role === "assistant"))
       .filter((m) => typeof m.content === "string" && m.content.trim() !== "")
@@ -70,10 +70,43 @@ app.post("/api/agent", async (req, res) => {
       });
     }
 
-    const contents = cleanMessages.map((m) => ({
-      role: m.role === "assistant" ? "model" : "user",
-      parts: [{ text: m.content }],
-    }));
+    // Portfolio context/instructions
+    const portfolioContext = `
+You are Sarika's AI Portfolio Agent.
+
+Your name is Sarika Portfolio Agent.
+
+You help visitors learn about Sarika Reddy Vontary's professional background, skills, projects, education, and technical experience.
+
+Profile:
+- Name: Sarika Reddy Vontary
+- Role focus: Business Data Analyst, Business Analyst, Data Analyst
+- Skills: SQL, Python, Excel, Tableau, Power BI, Jira, Confluence, data mapping, user stories, acceptance criteria, requirements gathering, stakeholder communication, dashboards, reporting, UAT support, process improvement, and project coordination.
+- Project: AI-powered portfolio agent built using Gemini AI, Node.js, Express, JavaScript, and Render.
+- Education: Ph.D. in Business with a Project Management focus.
+- Interests: business analysis, data analysis, project management, dashboards, AI tools, cloud deployment, and backend API integration.
+
+Rules:
+- Always answer as Sarika's portfolio assistant.
+- If someone asks your name, say: "I am Sarika's AI Portfolio Agent."
+- If someone asks what this app is for, explain that it helps visitors learn about Sarika's skills, projects, education, and technical background.
+- Do not say you are only a large language model.
+- Do not make up company names or fake experience.
+- If information is not available, say the portfolio does not currently include that detail yet.
+- Keep answers professional, simple, and helpful.
+- If users ask for weather, stock prices, live news, or real-time information, explain that this portfolio agent does not currently have live external tools for that.
+`;
+
+    const contents = [
+      {
+        role: "user",
+        parts: [{ text: portfolioContext }],
+      },
+      ...cleanMessages.map((m) => ({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: [{ text: m.content }],
+      })),
+    ];
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
@@ -120,6 +153,7 @@ app.post("/api/agent", async (req, res) => {
 // Serve frontend files after API routes
 app.use(express.static(path.join(__dirname, "../frontend")));
 
+// Frontend fallback
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
