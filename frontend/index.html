@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Portfolio Agent</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0e0e0f;--surface:#18181b;--surface2:#232329;--border:rgba(255,255,255,0.08);--text:#f4f4f5;--muted:#71717a;--accent:#6366f1;--accent-bg:rgba(99,102,241,0.12);--accent-border:rgba(99,102,241,0.3);--green:#22c55e;--amber:#f59e0b;--radius:12px;--radius-sm:8px}
+    body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;line-height:1.6}
+    .page{max-width:700px;margin:0 auto;padding:3rem 1.5rem 4rem}
+    .hero{text-align:center;margin-bottom:2.5rem}
+    .hero-tag{display:inline-block;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-border);padding:4px 12px;border-radius:999px;margin-bottom:1rem}
+    .hero h1{font-size:clamp(2rem,5vw,3rem);font-weight:700;letter-spacing:-0.02em;margin-bottom:0.75rem;background:linear-gradient(135deg,#fff 40%,#a5b4fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero-sub{font-size:15px;color:var(--muted);max-width:420px;margin:0 auto}
+    .agent-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:2rem}
+    .agent-header{display:flex;align-items:center;gap:12px;margin-bottom:1.25rem}
+    .agent-avatar{width:40px;height:40px;border-radius:50%;background:var(--accent-bg);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:18px;color:#818cf8;flex-shrink:0}
+    .agent-name{font-size:15px;font-weight:600}
+    .agent-status{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;font-family:'DM Mono',monospace}
+    .status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0}
+    .status-dot.thinking{background:var(--amber);animation:pulse 1s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+    .tools-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+    .tool-chip{display:flex;align-items:center;gap:5px;font-size:11px;font-family:'DM Mono',monospace;padding:4px 10px;border-radius:999px;border:1px solid var(--border);color:var(--muted);background:var(--surface2);transition:all 0.2s}
+    .tool-chip.active{border-color:var(--accent-border);color:#a5b4fc;background:var(--accent-bg)}
+    .suggestions{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
+    .suggestion-btn{font-size:12px;font-family:'Syne',sans-serif;padding:5px 12px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s}
+    .suggestion-btn:hover{border-color:rgba(255,255,255,0.15);color:var(--text)}
+    .chat-window{border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);min-height:300px;max-height:360px;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:10px;margin-bottom:1rem}
+    .msg{display:flex;gap:8px;animation:fadeUp 0.25s ease}
+    .msg.user{flex-direction:row-reverse}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .msg-icon{width:28px;height:28px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);flex-shrink:0}
+    .msg.user .msg-icon{background:var(--accent-bg);border-color:var(--accent-border);color:#818cf8}
+    .msg-bubble{max-width:80%;padding:9px 13px;border-radius:var(--radius-sm);font-size:14px;line-height:1.6;border:1px solid var(--border);color:var(--text);background:var(--surface2)}
+    .msg.user .msg-bubble{background:var(--accent-bg);border-color:var(--accent-border);color:#c7d2fe}
+    .thinking-dots{display:flex;gap:4px;padding:10px 13px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)}
+    .thinking-dots span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:bounce 1.2s infinite}
+    .thinking-dots span:nth-child(2){animation-delay:0.15s}
+    .thinking-dots span:nth-child(3){animation-delay:0.3s}
+    @keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+    .input-row{display:flex;gap:8px}
+    .agent-input{flex:1;padding:10px 14px;font-size:14px;font-family:'Syne',sans-serif;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg);color:var(--text);outline:none;transition:border-color 0.15s}
+    .agent-input:focus{border-color:var(--accent-border)}
+    .agent-input::placeholder{color:var(--muted)}
+    .send-btn{padding:10px 18px;font-size:14px;font-family:'Syne',sans-serif;font-weight:600;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--accent-bg);color:#a5b4fc;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:6px}
+    .send-btn:hover{background:rgba(99,102,241,0.2);border-color:var(--accent-border)}
+    .send-btn:disabled{opacity:0.4;cursor:not-allowed}
+    .footer{text-align:center;font-size:13px;color:var(--muted);margin-top:2rem}
+    .footer a{color:var(--muted);text-decoration:underline}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="hero-tag">AI Agent Demo</div>
+      <h1>Portfolio Agent</h1>
+      <p class="hero-sub">A live AI agent that thinks, picks tools, and gets things done.</p>
+    </header>
+    <main class="agent-card">
+      <div class="agent-header">
+        <div class="agent-avatar"><i class="ti ti-robot"></i></div>
+        <div>
+          <div class="agent-name">Agent · Gemini Powered</div>
+          <div class="agent-status">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Ready</span>
+          </div>
+        </div>
+      </div>
+      <div class="suggestions" id="suggestions">
+        <button class="suggestion-btn" onclick="useSuggestion('What is 15% tip on $84?')">15% tip on $84?</button>
+        <button class="suggestion-btn" onclick="useSuggestion('Give me 3 tips to improve my portfolio website')">Portfolio tips</button>
+        <button class="suggestion-btn" onclick="useSuggestion('Explain machine learning in 3 sentences')">Explain ML</button>
+        <button class="suggestion-btn" onclick="useSuggestion('What skills should I learn for AI jobs?')">AI job skills</button>
+      </div>
+      <div class="chat-window" id="chatWindow"></div>
+      <div class="input-row">
+        <input class="agent-input" id="agentInput" placeholder="Ask your agent anything..." />
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+          Send <i class="ti ti-arrow-right"></i>
+        </button>
+      </div>
+    </main>
+    <footer class="footer">
+      Built with Gemini AI ·
+      <a href="https://github.com/sarika0125/portfolio-agent" target="_blank">View on GitHub</a>
+    </footer>
+  </div>
+  <script>
+    let messages = [];
+    let isThinking = false;
+
+    function setStatus(text, thinking = false) {
+      document.getElementById("statusText").textContent = text;
+      document.getElementById("statusDot").className = "status-dot" + (thinking ? " thinking" : "");
+    }
+
+    function scrollChat() {
+      const win = document.getElementById("chatWindow");
+      win.scrollTop = win.scrollHeight;
+    }
+
+    function addMessage(role, content) {
+      const win = document.getElementById("chatWindow");
+      const div = document.createElement("div");
+      div.className = "msg " + role;
+      div.innerHTML = `
+        <div class="msg-icon"><i class="ti ti-${role === "user" ? "user" : "robot"}"></i></div>
+        <div class="msg-bubble">${content}</div>
+      `;
+      win.appendChild(div);
+      scrollChat();
+    }
+
+    function addThinking() {
+      const win = document.getElementById("chatWindow");
+      const wrap = document.createElement("div");
+      wrap.className = "msg agent";
+      wrap.id = "thinkingIndicator";
+      wrap.innerHTML = `
+        <div class="msg-icon"><i class="ti ti-robot"></i></div>
+        <div class="thinking-dots"><span></span><span></span><span></span></div>
+      `;
+      win.appendChild(wrap);
+      scrollChat();
+    }
+
+    function removeThinking() {
+      document.getElementById("thinkingIndicator")?.remove();
+    }
+
+    function useSuggestion(text) {
+      document.getElementById("agentInput").value = text;
+      document.getElementById("agentInput").focus();
+    }
+
+    async function sendMessage() {
+      if (isThinking) return;
+      const input = document.getElementById("agentInput");
+      const btn = document.getElementById("sendBtn");
+      const userText = input.value.trim();
+      if (!userText) return;
+
+      input.value = "";
+      isThinking = true;
+      btn.disabled = true;
+      document.getElementById("suggestions").style.display = "none";
+
+      addMessage("user", userText);
+      messages.push({ role: "user", content: userText });
+      setStatus("Thinking...", true);
+      addThinking();
+
+      try {
+        const res = await fetch("/api/agent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages })
+        });
+
+        const data = await res.json();
+        removeThinking();
+
+        const reply = data.text || "Sorry, I could not get a response.";
+        messages.push({ role: "assistant", content: reply });
+        addMessage("agent", reply);
+        setStatus("Ready");
+
+      } catch (err) {
+        removeThinking();
+        addMessage("agent", "Could not reach the server. Please try again.");
+        setStatus("Error");
+      }
+
+      isThinking = false;
+      btn.disabled = false;
+      input.focus();
+    }
+
+    document.getElementById("agentInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") sendMessage();
+    });
+
+    addMessage("agent", "Hi! I am your portfolio agent powered by Gemini AI. Ask me anything!");
+  </script>
+</body>
+</html>
