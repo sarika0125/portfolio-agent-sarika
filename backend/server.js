@@ -8,10 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve frontend files
-app.use(express.static(path.join(__dirname, "../frontend")));
-
-// Debug route to check backend and Gemini key
+// Debug route
 app.get("/api/debug", (req, res) => {
   res.json({
     status: "backend working",
@@ -32,40 +29,51 @@ app.post("/api/agent", async (req, res) => {
   }
 
   try {
-    let contents = [];
+    let messages = [];
 
-    // If frontend sends: { messages: [...] }
-    if (Array.isArray(req.body.messages)) {
-      contents = req.body.messages.map((m) => ({
-        role: m.role === "assistant" ? "model" : "user",
-        parts: [
-          {
-            text:
-              typeof m.content === "string"
-                ? m.content
-                : JSON.stringify(m.content),
-          },
-        ],
-      }));
+    // Case 1: frontend sends array directly:
+    // [{ role: "user", content: "hi" }]
+    if (Array.isArray(req.body)) {
+      messages = req.body;
     }
 
-    // If frontend sends: { message: "hi" }
+    // Case 2: frontend sends { messages: [...] }
+    else if (Array.isArray(req.body.messages)) {
+      messages = req.body.messages;
+    }
+
+    // Case 3: frontend sends { message: "hi" }
     else if (typeof req.body.message === "string") {
-      contents = [
-        {
-          role: "user",
-          parts: [{ text: req.body.message }],
-        },
-      ];
+      messages = [{ role: "user", content: req.body.message }];
     }
 
-    // If frontend sends something else
-    else {
+    // Case 4: frontend sends { prompt: "hi" }
+    else if (typeof req.body.prompt === "string") {
+      messages = [{ role: "user", content: req.body.prompt }];
+    }
+
+    // Case 5: frontend sends { input: "hi" }
+    else if (typeof req.body.input === "string") {
+      messages = [{ role: "user", content: req.body.input }];
+    }
+
+    // Keep only valid user/assistant messages and remove old error messages
+    const cleanMessages = messages
+      .filter((m) => m && (m.role === "user" || m.role === "assistant"))
+      .filter((m) => typeof m.content === "string" && m.content.trim() !== "")
+      .filter((m) => !m.content.includes("Sorry, I could not get a response."));
+
+    if (cleanMessages.length === 0) {
       return res.status(400).json({
-        error:
-          "Invalid request body. Send either { message: 'hi' } or { messages: [...] }",
+        error: "No valid message found",
+        receivedBody: req.body,
       });
     }
+
+    const contents = cleanMessages.map((m) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }],
+    }));
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
@@ -89,14 +97,15 @@ app.post("/api/agent", async (req, res) => {
       });
     }
 
-    const text =
+    const reply =
       data.candidates?.[0]?.content?.parts?.[0]?.text ||
       "No response from Gemini";
 
-    // Return both names so frontend can read either data.reply or data.text
     res.json({
-      reply: text,
-      text: text,
+      reply,
+      text: reply,
+      response: reply,
+      answer: reply,
     });
   } catch (err) {
     console.error("Server error:", err);
@@ -108,7 +117,9 @@ app.post("/api/agent", async (req, res) => {
   }
 });
 
-// Frontend fallback
+// Serve frontend files after API routes
+app.use(express.static(path.join(__dirname, "../frontend")));
+
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
@@ -116,5 +127,5 @@ app.get("*", (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`NEW SERVER CODE RUNNING - Agent running at http://localhost:${PORT}`);
+  console.log(`Agent running at http://localhost:${PORT}`);
 });
