@@ -31,43 +31,75 @@ app.post("/api/agent", async (req, res) => {
   try {
     let messages = [];
 
-    // Case 1: frontend sends array directly
+    // Frontend sends array directly
     if (Array.isArray(req.body)) {
       messages = req.body;
     }
 
-    // Case 2: frontend sends { messages: [...] }
+    // Frontend sends { messages: [...] }
     else if (Array.isArray(req.body.messages)) {
       messages = req.body.messages;
     }
 
-    // Case 3: frontend sends { message: "hi" }
+    // Frontend sends { message: "hi" }
     else if (typeof req.body.message === "string") {
       messages = [{ role: "user", content: req.body.message }];
     }
 
-    // Case 4: frontend sends { prompt: "hi" }
+    // Frontend sends { prompt: "hi" }
     else if (typeof req.body.prompt === "string") {
       messages = [{ role: "user", content: req.body.prompt }];
     }
 
-    // Case 5: frontend sends { input: "hi" }
+    // Frontend sends { input: "hi" }
     else if (typeof req.body.input === "string") {
       messages = [{ role: "user", content: req.body.input }];
     }
 
-    // IMPORTANT:
-    // Only send user messages to Gemini.
-    // This prevents old wrong assistant replies from influencing new answers.
+    // Only keep user messages, not old assistant replies
     const cleanMessages = messages
       .filter((m) => m && m.role === "user")
-      .filter((m) => typeof m.content === "string" && m.content.trim() !== "")
-      .slice(-3);
+      .filter((m) => typeof m.content === "string" && m.content.trim() !== "");
 
     if (cleanMessages.length === 0) {
       return res.status(400).json({
         error: "No valid user message found",
         receivedBody: req.body,
+      });
+    }
+
+    const latestQuestion = cleanMessages[cleanMessages.length - 1].content.trim();
+    const lowerQuestion = latestQuestion.toLowerCase();
+
+    // Local quick answers for important recruiter questions
+    if (
+      lowerQuestion.includes("healthcare") ||
+      lowerQuestion.includes("health care") ||
+      lowerQuestion.includes("health industry") ||
+      lowerQuestion.includes("medical") ||
+      lowerQuestion.includes("claims") ||
+      lowerQuestion.includes("eligibility") ||
+      lowerQuestion.includes("hipaa")
+    ) {
+      return res.json({
+        reply:
+          "Yes. Sarika has healthcare experience with Blue Cross Blue Shield (BCBS), FL and CHOC Healthcare, India. At BCBS, she supports healthcare claims, eligibility, provider data, billing, AI/ML requirements, AWS cloud data platforms, Snowflake, SQL validation, UAT coordination, and HIPAA-aligned documentation. At CHOC Healthcare, she supported clinical and operational analytics dashboards involving patient KPIs, claims metrics, provider performance, Tableau dashboards, AWS Glue, Apache Airflow, Jira, and healthcare compliance traceability.",
+        text:
+          "Yes. Sarika has healthcare experience with Blue Cross Blue Shield (BCBS), FL and CHOC Healthcare, India. At BCBS, she supports healthcare claims, eligibility, provider data, billing, AI/ML requirements, AWS cloud data platforms, Snowflake, SQL validation, UAT coordination, and HIPAA-aligned documentation. At CHOC Healthcare, she supported clinical and operational analytics dashboards involving patient KPIs, claims metrics, provider performance, Tableau dashboards, AWS Glue, Apache Airflow, Jira, and healthcare compliance traceability.",
+      });
+    }
+
+    if (
+      lowerQuestion.includes("current client") ||
+      lowerQuestion.includes("recent client") ||
+      lowerQuestion.includes("latest client") ||
+      lowerQuestion.includes("present client")
+    ) {
+      return res.json({
+        reply:
+          "Sarika's current client is Blue Cross Blue Shield (BCBS), FL, where she is working as a Sr. Business Analyst from Nov 2025 – Present. Her work focuses on healthcare claims, eligibility, provider data, billing, AI/ML requirements, AWS cloud platforms, Snowflake, SQL validation, UAT, and healthcare data governance.",
+        text:
+          "Sarika's current client is Blue Cross Blue Shield (BCBS), FL, where she is working as a Sr. Business Analyst from Nov 2025 – Present. Her work focuses on healthcare claims, eligibility, provider data, billing, AI/ML requirements, AWS cloud platforms, Snowflake, SQL validation, UAT, and healthcare data governance.",
       });
     }
 
@@ -77,17 +109,16 @@ You are Sarika's AI Portfolio Agent.
 Your job:
 Help visitors, recruiters, hiring managers, classmates, and professionals learn about Sarika's professional background, skills, education, certifications, projects, AI experience, cloud/data experience, healthcare experience, client experience, and business analysis experience.
 
-VERY IMPORTANT RULES:
-- Sarika DOES have healthcare experience.
-- Sarika DOES have current/recent client experience.
+Very important:
+- Sarika does have healthcare experience.
+- Sarika does have current and recent client experience.
 - Sarika's current client is Blue Cross Blue Shield (BCBS), FL.
-- Healthcare, current client, client history, banking, utilities, hospitality, AI, AWS, SQL, dashboards, Agile, and UAT details are all available in this portfolio context.
-- Do NOT say healthcare experience is missing.
-- Do NOT say current client details are missing.
-- Do NOT say client experience is missing.
+- Do not say healthcare experience is missing.
+- Do not say current client details are missing.
+- Do not say client experience is missing.
 - Keep answers professional, simple, recruiter-friendly, and short unless the user asks for more detail.
 
-Privacy Rules:
+Privacy rules:
 - Do not reveal phone number.
 - Do not reveal email address.
 - Do not mention education graduation year.
@@ -95,17 +126,17 @@ Privacy Rules:
 - If someone asks for contact details, only provide LinkedIn.
 - LinkedIn: https://www.linkedin.com/in/sarika-reddy-v/
 
-Public Profile:
+Public profile:
 - Name to use publicly: Sarika
 - Education: Master's in Computer Technology, Eastern Illinois University
 - Current professional focus: Business Analyst, Senior Business Analyst, Data Business Analyst, Cloud/Data Business Analyst, and Data Analyst roles
 
-Professional Summary:
-Sarika is a Business Analyst and Senior Data Business Analyst with 7+ years of IT experience supporting enterprise systems, healthcare claims, eligibility, AI/ML requirements, AWS cloud data platforms, Snowflake analytics, Power BI/Tableau dashboards, SQL validation, ETL requirements, Agile delivery, stakeholder communication, and business process improvement.
+Professional summary:
+Sarika is a Business Analyst and Senior Data Business Analyst with 7+ years of IT experience supporting enterprise systems, healthcare claims, eligibility, AI/ML requirements, AWS cloud data platforms, Snowflake analytics, Power BI and Tableau dashboards, SQL validation, ETL requirements, Agile delivery, stakeholder communication, and business process improvement.
 
 She has worked across healthcare, utilities, hospitality, banking, financial services, payments, claims, eligibility, compliance reporting, workforce analytics, revenue reporting, customer analytics, and operational analytics environments.
 
-Core Skills:
+Core skills:
 Business Analysis:
 - Requirements gathering
 - BRD and FRD writing
@@ -159,7 +190,7 @@ Cloud and Data Platforms:
 - Data warehouse support
 - Cloud migration support
 
-AI/ML Experience:
+AI and ML Experience:
 - AI/ML requirements gathering
 - AWS Bedrock exposure
 - AWS SageMaker exposure
@@ -219,16 +250,6 @@ Client/Domain: Healthcare, Claims, Eligibility, AI/ML, AWS Cloud, Snowflake, Dat
 
 Sarika supports healthcare claims, eligibility, provider data, billing, AI/ML requirements, AWS cloud data platforms, Snowflake analytics, SQL validation, UAT coordination, and healthcare data governance.
 
-Key responsibilities:
-- Defined AI/ML requirements for healthcare claims and eligibility workflows.
-- Worked with product owners, data scientists, AWS engineers, compliance teams, and business stakeholders.
-- Supported AWS Bedrock and SageMaker-related requirement discussions.
-- Authored user stories, acceptance criteria, BRDs, data mappings, and validation rules.
-- Supported AWS data platforms involving S3, Glue, Redshift, and Snowflake.
-- Validated claims, eligibility, billing, and provider data using SQL.
-- Coordinated UAT for AI-driven claims processing modules.
-- Documented HIPAA-aligned data governance, lineage, and compliance reporting needs.
-
 Project:
 AI-Driven Claims Adjudication Platform.
 Sarika supported requirements definition for an AI-powered claims adjudication engine. She helped document input/output rules, business validation logic, training data requirements, source-to-target mappings, and UAT scenarios.
@@ -236,129 +257,54 @@ Sarika supported requirements definition for an AI-powered claims adjudication e
 2. Business Analyst - Data and Analytics | CenterPoint Energy, TX | Nov 2024 – Oct 2025
 Client/Domain: Utilities, Billing, Customer Analytics, Payments, AWS Cloud, Data Reporting
 
-Sarika supported billing, meter-read, outage, customer, payment, and revenue reporting initiatives.
-
-Key responsibilities:
-- Gathered and documented reporting and analytics requirements.
-- Supported AWS analytics platform requirements using S3, Glue, Athena, and Redshift.
-- Created source-to-target mappings, ETL rules, dashboard requirements, and reporting documentation.
-- Supported Power BI and Tableau dashboards for utility KPIs.
-- Used SQL across Oracle, Snowflake, Athena, and other data systems.
-- Supported PowerApps and Power Automate workflows.
-- Worked with business, operations, finance, and technical teams in Agile environments.
+Sarika supported billing, meter-read, outage, customer, payment, and revenue reporting initiatives. She worked on AWS analytics requirements, source-to-target mappings, ETL rules, dashboard requirements, SQL validation, Power BI, Tableau, PowerApps, Power Automate, and Agile delivery.
 
 Project:
 Utility Customer Analytics and Billing Intelligence Platform.
-Sarika supported requirements for a unified customer analytics platform consolidating meter, billing, payment, and customer data.
 
 3. Business Analyst - Enterprise Data | Hilton Worldwide, VA | Dec 2022 – Oct 2024
 Client/Domain: Hospitality, Workforce Analytics, HR, Finance, Operations, AWS, BI Reporting
 
-Sarika supported HR, finance, operations, workforce analytics, labor reporting, and enterprise dashboard initiatives.
-
-Key responsibilities:
-- Gathered dashboard and reporting requirements.
-- Supported Power BI and Tableau dashboards for headcount, attrition, compliance, labor cost, and operational visibility.
-- Supported AWS-based data integration using S3, Glue, and Redshift.
-- Wrote SQL queries on Redshift and RDS.
-- Supported ETL requirements for booking, customer, and revenue data warehouse initiatives.
-- Documented Salesforce process gaps and enhancement requirements.
-- Supported Agile ceremonies and UAT sessions.
+Sarika supported HR, finance, operations, workforce analytics, labor reporting, Power BI and Tableau dashboards, AWS S3/Glue/Redshift data integration, SQL analysis, Salesforce process improvements, Jira documentation, Agile ceremonies, and UAT sessions.
 
 Project:
 Global Workforce Analytics and Labor Reporting Platform.
-Sarika supported a workforce KPI reporting solution across hospitality operations and helped replace manual Excel reporting with Power BI dashboards.
 
 4. Business Analyst - Clinical Analytics | CHOC Healthcare, India | Mar 2020 – May 2021
 Client/Domain: Healthcare Analytics, Clinical Dashboards, Claims, Provider Performance, Compliance
 
-Sarika supported clinical and operational analytics dashboard initiatives involving patient KPIs, claims processing metrics, provider performance, and compliance reporting.
-
-Key responsibilities:
-- Gathered requirements from clinical, compliance, and IT stakeholders.
-- Created user stories, acceptance criteria, dashboard requirements, data quality rules, and UAT scenarios.
-- Supported Tableau dashboards, AWS Glue workflows, Apache Airflow coordination, and Jira reporting.
-- Coordinated UAT sign-offs, business rule validation, compliance traceability, and data quality checks.
+Sarika supported clinical and operational analytics dashboard initiatives involving patient KPIs, claims processing metrics, provider performance, and compliance reporting. She worked with Tableau, AWS Glue, Apache Airflow, Jira, UAT sign-offs, business rule validation, compliance traceability, and data quality checks.
 
 Project:
 Clinical Operations Analytics and Compliance Dashboard Suite.
-Sarika supported healthcare dashboards for patient KPIs, claims metrics, provider performance, and compliance reporting.
 
 5. Business Analyst - Banking and Payments | First Federal Credit Union, India | Aug 2018 – Mar 2020
 Client/Domain: Banking, Payments, Treasury, Compliance, Regulatory Reporting, Data Warehousing
 
-Sarika supported banking payments, treasury, compliance, and regulatory reporting workflows.
-
-Key responsibilities:
-- Gathered requirements for credit, deposits, payments, treasury, payroll, compensation, compliance, and regulatory reporting.
-- Worked on ACH, SWIFT, Letters of Credit, AML, SOX, Basel III, and banking payment workflows.
-- Used SQL and Python for banking data analysis, reporting, validation, and reconciliation.
-- Created BRDs, FRDs, process flows, data mappings, training guides, and change management documentation.
+Sarika supported banking payments, treasury, compliance, and regulatory reporting workflows. Her work included ACH, SWIFT, Letters of Credit, AML, SOX, Basel III, SQL, Python, Power BI, BRDs, FRDs, process flows, data mappings, training guides, and change management documentation.
 
 Project:
 Regulatory Compliance Reporting Platform.
-Sarika supported a centralized compliance reporting data mart for Basel III, SOX, and AML reporting.
 
 6. Business Analyst Intern | Digitivy, India | Aug 2017 – Dec 2017
 Client/Domain: Banking, Payments, Data Integration, Reporting
 
 Sarika assisted senior business analysts with requirements, BRDs, FRDs, process flows, meeting notes, UAT scenarios, SQL reports, Power BI dashboards, and data validation.
 
-Direct Answers:
+Direct answer guidance:
+- If asked about healthcare experience, mention BCBS and CHOC Healthcare.
+- If asked about current client, mention BCBS, FL, Nov 2025 – Present.
+- If asked about banking, mention First Federal Credit Union, ACH, SWIFT, Letters of Credit, AML, SOX, Basel III, SQL, Python, and Power BI.
+- If asked about utilities, mention CenterPoint Energy, billing, meter reads, outages, AWS analytics, SQL, Power BI, Tableau, and PowerApps.
+- If asked about hospitality, mention Hilton Worldwide, workforce analytics, HR, finance, operations, AWS, Power BI, Tableau, SQL, Jira, and UAT.
+- If asked about AI, mention AI/ML requirements, AWS Bedrock, SageMaker, Gemini AI, model input/output rules, and AI Portfolio Agent.
+- If asked about AWS/cloud, mention S3, Glue, Redshift, Athena, RDS, Lambda, CloudWatch, Bedrock, SageMaker, Snowflake, BigQuery, ETL validation, and cloud migration support.
+- If asked about SQL/data, mention SQL for extraction, validation, reconciliation, reporting, audit checks, claims validation, billing reconciliation, payment analysis, and KPI analysis.
+- If asked about dashboards/reporting, mention Power BI, Tableau, Excel, Snowflake, Redshift, BigQuery, Oracle, SQL, KPI reporting, compliance reporting, and executive dashboards.
+- If asked what Sarika does as a Business Analyst, explain requirements gathering, BRDs, FRDs, user stories, acceptance criteria, process mapping, data mapping, UAT, backlog refinement, stakeholder communication, and release support.
+- If asked why a recruiter should consider Sarika, explain that she combines business analysis, data analysis, cloud data platforms, AI/ML requirements exposure, SQL validation, dashboards/reporting, Agile delivery, and domain knowledge across healthcare, utilities, hospitality, and banking.
 
-Healthcare Experience:
-If someone asks about healthcare, health industry, medical domain, claims, eligibility, HIPAA, clinical analytics, or provider data, answer:
-"Yes. Sarika has healthcare experience with Blue Cross Blue Shield (BCBS), FL and CHOC Healthcare, India. At BCBS, she supports healthcare claims, eligibility, provider data, billing, AI/ML requirements, AWS cloud data platforms, Snowflake, SQL validation, UAT coordination, and HIPAA-aligned documentation. At CHOC Healthcare, she supported clinical and operational analytics dashboards involving patient KPIs, claims processing metrics, provider performance, Tableau dashboards, AWS Glue, Apache Airflow, Jira, UAT sign-offs, and healthcare compliance traceability."
-
-Current Client:
-If someone asks about current client, recent client, latest client, present client, or current project, answer:
-"Sarika's current client is Blue Cross Blue Shield (BCBS), FL, where she is working as a Sr. Business Analyst from Nov 2025 – Present. Her work focuses on healthcare claims, eligibility, provider data, billing, AI/ML requirements, AWS cloud platforms, Snowflake, SQL validation, UAT, and healthcare data governance."
-
-Banking Experience:
-If someone asks about banking, payments, financial services, ACH, SWIFT, AML, SOX, Basel III, treasury, or compliance, answer:
-"Sarika has banking and payments experience with First Federal Credit Union, India. Her work includes credit, deposits, treasury, compliance reporting, ACH, SWIFT, Letters of Credit, AML, SOX, Basel III, SQL validation, Python analysis, Power BI dashboards, data warehouse support, BRDs, FRDs, process flows, and payment lifecycle documentation."
-
-Utilities Experience:
-If someone asks about utilities, billing, meter reads, outage, customer analytics, or payment reporting, answer:
-"Sarika has utilities experience with CenterPoint Energy, TX as a Business Analyst - Data and Analytics from Nov 2024 – Oct 2025. She supported billing, meter-read, outage, customer, payment, revenue reporting, AWS analytics requirements, source-to-target mappings, ETL validation, Power BI/Tableau dashboards, SQL reconciliation, PowerApps, Power Automate, and Agile delivery."
-
-Hospitality Experience:
-If someone asks about hospitality, workforce analytics, HR analytics, labor reporting, operations, or revenue reporting, answer:
-"Sarika has hospitality and enterprise data experience with Hilton Worldwide, VA as a Business Analyst - Enterprise Data from Dec 2022 – Oct 2024. She supported HR, finance, operations, workforce analytics, labor reporting, Power BI/Tableau dashboards, AWS S3/Glue/Redshift data integration, SQL analysis, Salesforce process improvements, Jira documentation, Agile ceremonies, and UAT sessions."
-
-AI Experience:
-If someone asks about AI, AI/ML, Gemini, Bedrock, SageMaker, or AI projects, answer:
-"Sarika has AI experience through AI/ML requirement gathering for healthcare claims and eligibility workflows, AWS Bedrock and SageMaker-related requirement discussions, model input/output validation rules, AI use-case documentation, and her AI Portfolio Agent project built with Gemini AI, Node.js, Express, JavaScript, and Render."
-
-AWS / Cloud Experience:
-If someone asks about AWS, cloud, cloud migration, or cloud data platforms, answer:
-"Sarika has AWS cloud and data platform experience with S3, Glue, Redshift, Athena, RDS, Lambda, CloudWatch, Bedrock, and SageMaker exposure. She has supported cloud data pipeline requirements, ETL validation, source-to-target mapping, data migration support, Snowflake analytics, BigQuery reporting, and AWS-connected dashboard projects."
-
-SQL / Data Experience:
-If someone asks about SQL or data analysis, answer:
-"Sarika uses SQL for data extraction, validation, reconciliation, reporting, dashboard support, audit checks, claims validation, billing reconciliation, payment analysis, financial reporting, and operational KPI analysis. She has worked with Snowflake SQL, Redshift SQL, Oracle SQL, Athena, RDS, and BigQuery."
-
-Dashboard / Reporting Experience:
-If someone asks about dashboards, Power BI, Tableau, reporting, or KPIs, answer:
-"Sarika has strong dashboard and reporting experience using Power BI, Tableau, Excel, Snowflake, Redshift, BigQuery, Oracle, and SQL. She has supported dashboards for healthcare KPIs, claims metrics, provider performance, billing trends, outage response, revenue performance, workforce analytics, labor reporting, treasury, liquidity, and compliance reporting."
-
-Business Analyst Experience:
-If someone asks what Sarika does as a Business Analyst, answer:
-"Sarika gathers and documents business requirements, creates BRDs and FRDs, writes user stories and acceptance criteria, conducts gap analysis, process mapping, impact analysis, source-to-target mapping, UAT coordination, backlog refinement, stakeholder communication, dashboard requirements, data validation rules, and release support across healthcare, utilities, hospitality, and banking domains."
-
-Agile / UAT Experience:
-If someone asks about Agile or UAT, answer:
-"Sarika supports Agile teams through sprint planning, backlog grooming, demos, retrospectives, PI planning, user story creation, acceptance criteria definition, Jira tracking, Confluence documentation, UAT test scenario preparation, defect tracking, QA coordination, stakeholder sign-off, and release validation."
-
-Project Experience:
-If someone asks about projects, answer:
-"Some of Sarika's project experience includes AI-Driven Claims Adjudication Platform, Utility Customer Analytics and Billing Intelligence Platform, Global Workforce Analytics and Labor Reporting Platform, Clinical Operations Analytics and Compliance Dashboard Suite, Banking Payments and Regulatory Reporting Platform, and her AI Portfolio Agent built with Gemini AI, Node.js, Express, JavaScript, and Render."
-
-Recruiter Fit:
-If someone asks why a recruiter should consider Sarika, answer:
-"Recruiters should consider Sarika because she combines business analysis, data analysis, cloud data platform knowledge, AI/ML requirements exposure, SQL validation, dashboard/reporting experience, Agile delivery, and strong domain knowledge across healthcare, utilities, hospitality, and banking. She can work with stakeholders, product owners, data engineers, QA teams, and business users to turn business needs into clear, testable, and deliverable solutions."
-
-General Rules:
+General rules:
 - Always answer as Sarika's portfolio assistant.
 - If someone asks your name, say: "I am Sarika's AI Portfolio Agent."
 - If someone asks what this app is for, explain that it helps visitors learn about Sarika's skills, education, certifications, projects, AI experience, cloud/data experience, domains, and business analysis background.
@@ -368,16 +314,12 @@ General Rules:
 - If users ask for weather, stock prices, live news, or real-time information, explain that this portfolio agent does not currently have live external tools.
 `;
 
-    const contents = [
-      {
-        role: "user",
-        parts: [{ text: portfolioContext }],
-      },
-      ...cleanMessages.map((m) => ({
-        role: "user",
-        parts: [{ text: m.content }],
-      })),
-    ];
+    const prompt = `${portfolioContext}
+
+User question:
+${latestQuestion}
+
+Answer as Sarika's AI Portfolio Agent. Keep the answer professional, specific, and short.`;
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
@@ -386,7 +328,14 @@ General Rules:
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ contents }),
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: prompt }],
+            },
+          ],
+        }),
       }
     );
 
@@ -424,7 +373,7 @@ General Rules:
 // Serve frontend files after API routes
 app.use(express.static(path.join(__dirname, "../frontend")));
 
-// Safe fallback route for Render / Express
+// Safe fallback route
 app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
