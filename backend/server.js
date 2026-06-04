@@ -57,7 +57,7 @@ app.post("/api/agent", async (req, res) => {
       messages = [{ role: "user", content: req.body.input }];
     }
 
-    // Keep only valid user/assistant messages and remove old error messages
+    // Clean messages
     const cleanMessages = messages
       .filter((m) => m && (m.role === "user" || m.role === "assistant"))
       .filter((m) => typeof m.content === "string" && m.content.trim() !== "")
@@ -76,7 +76,7 @@ app.post("/api/agent", async (req, res) => {
     }));
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: {
