@@ -8,7 +8,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Debug route
 app.get("/api/debug", (req, res) => {
   res.json({
     status: "backend working",
@@ -16,364 +15,630 @@ app.get("/api/debug", (req, res) => {
   });
 });
 
-// Main agent route
+const resumeData = {
+  name: "Sarika",
+  email: "vontarys@gmail.com",
+  linkedin: "https://www.linkedin.com/in/sarika-reddy-v/",
+  education: "Master's in Computer Technology, Eastern Illinois University",
+  experienceYears: "7+ years of IT experience",
+  currentFocus:
+    "Business Analyst, Senior Business Analyst, Data Business Analyst, Cloud/Data Business Analyst, and Data Analyst roles",
+
+  clients: [
+    {
+      name: "Blue Cross Blue Shield (BCBS), FL",
+      role: "Sr. Business Analyst",
+      dates: "Nov 2025 – Present",
+      industry: "Healthcare",
+      project: "AI-Driven Claims Adjudication Platform",
+      summary:
+        "Sarika supports healthcare claims, eligibility, provider data, billing, AI/ML requirements, AWS cloud data platforms, Snowflake analytics, SQL validation, UAT coordination, and healthcare data governance.",
+      tools:
+        "AWS Bedrock, SageMaker, S3, Glue, Redshift, Snowflake, SQL, Jira, healthcare claims data, eligibility data, provider data",
+    },
+    {
+      name: "CenterPoint Energy, TX",
+      role: "Business Analyst – Data and Analytics",
+      dates: "Nov 2024 – Oct 2025",
+      industry: "Utilities",
+      project: "Utility Customer Analytics and Billing Intelligence Platform",
+      summary:
+        "Sarika supported billing, meter-read, outage, customer, payment, and revenue reporting initiatives. She worked on AWS analytics requirements, source-to-target mappings, ETL rules, dashboard requirements, SQL validation, Power BI, Tableau, PowerApps, Power Automate, and Agile delivery.",
+      tools:
+        "AWS S3, Glue, Athena, Redshift, Power BI, Tableau, Snowflake, Oracle, SQL, PowerApps, Power Automate, Jira",
+    },
+    {
+      name: "Hilton Worldwide, VA",
+      role: "Business Analyst – Enterprise Data",
+      dates: "Dec 2022 – Oct 2024",
+      industry: "Hospitality",
+      project: "Global Workforce Analytics and Labor Reporting Platform",
+      summary:
+        "Sarika supported HR, finance, operations, workforce analytics, labor reporting, enterprise dashboards, AWS-based data integration, SQL analysis, Salesforce process improvements, Jira documentation, Agile ceremonies, and UAT sessions.",
+      tools:
+        "Power BI, Tableau, AWS S3, Glue, Redshift, SQL, Jira, Confluence, Salesforce process documentation",
+    },
+    {
+      name: "CHOC Healthcare, India",
+      role: "Business Analyst – Clinical Analytics",
+      dates: "Mar 2020 – May 2021",
+      industry: "Healthcare Analytics",
+      project: "Clinical Operations Analytics and Compliance Dashboard Suite",
+      summary:
+        "Sarika supported clinical and operational analytics dashboards involving patient KPIs, claims processing metrics, provider performance, compliance reporting, Tableau dashboards, AWS Glue workflows, Apache Airflow coordination, Jira reporting, UAT sign-offs, and healthcare compliance traceability.",
+      tools:
+        "Tableau, AWS Glue, Apache Airflow, Jira, healthcare data, claims metrics, provider performance data",
+    },
+    {
+      name: "First Federal Credit Union, India",
+      role: "Business Analyst – Banking and Payments",
+      dates: "Aug 2018 – Mar 2020",
+      industry: "Banking and Payments",
+      project: "Regulatory Compliance Reporting Platform",
+      summary:
+        "Sarika supported banking payments, treasury, compliance, and regulatory reporting workflows involving ACH, SWIFT, Letters of Credit, AML, SOX, Basel III, SQL, Python, Power BI, BRDs, FRDs, process flows, data mappings, and change management documentation.",
+      tools:
+        "SQL, Python, Power BI, banking systems, ACH, SWIFT, AML, SOX, Basel III, treasury reporting",
+    },
+    {
+      name: "Digitivy, India",
+      role: "Business Analyst Intern",
+      dates: "Aug 2017 – Dec 2017",
+      industry: "Banking, Payments, Data Integration, Reporting",
+      project: "Payment Integration and Banking Reporting Support",
+      summary:
+        "Sarika assisted senior business analysts with requirements, BRDs, FRDs, process flows, meeting notes, UAT scenarios, SQL reports, Power BI dashboards, and data validation.",
+      tools:
+        "SQL, Power BI, Jira, Confluence, BRDs, FRDs, process flows, UAT support",
+    },
+  ],
+
+  skills: {
+    businessAnalysis:
+      "Requirements gathering, BRDs, FRDs, user stories, acceptance criteria, gap analysis, process mapping, impact analysis, root cause analysis, stakeholder communication, source-to-target mapping, UAT support, backlog refinement, documentation, SDLC, and release support.",
+    dataAnalysis:
+      "SQL, Python, Excel, Snowflake SQL, Redshift SQL, Oracle SQL, BigQuery, Athena, RDS, data validation, reconciliation, data quality, KPI analysis, and reporting analysis.",
+    dashboards:
+      "Power BI, Tableau, Excel dashboards, KPI reporting, executive reporting, operational reporting, compliance reporting, report automation, dashboard requirements, and dashboard validation.",
+    cloud:
+      "AWS S3, Glue, Redshift, Athena, RDS, Lambda, CloudWatch, Bedrock, SageMaker exposure, Snowflake, BigQuery, Oracle, ETL pipeline support, data warehouse support, and cloud migration support.",
+    aws:
+      "AWS S3, Glue, Redshift, Athena, RDS, Lambda, CloudWatch, Bedrock, and SageMaker exposure. Sarika has supported AWS data pipeline requirements, ETL validation, source-to-target mapping, cloud migration support, dashboard data integration, and AI/ML requirement discussions.",
+    gcp:
+      "GCP exposure through BigQuery, cloud analytics, enterprise reporting, data validation, and dashboard-related data analysis use cases.",
+    azure:
+      "Azure-related experience through Azure DevOps, Agile backlog tracking, requirements management, UAT coordination, and collaboration with cloud/data delivery teams.",
+    ai:
+      "AI/ML requirements gathering, AWS Bedrock exposure, AWS SageMaker exposure, Gemini AI API integration, AI-powered portfolio agent development, AI-enabled analytics, model input/output requirement documentation, AI use-case validation, and healthcare claims AI/ML workflow support.",
+    agile:
+      "Jira, Confluence, Azure DevOps, TFS/VSTS, Agile/Scrum, SAFe exposure, sprint planning, backlog grooming, retrospectives, demos, UAT coordination, PI planning, release support, defect tracking, and stakeholder sign-off.",
+    domains:
+      "Healthcare claims, eligibility, EHR, enrollment, HIPAA, provider data, billing, banking payments, ACH, SWIFT, Letters of Credit, AML, SOX, Basel III, utilities billing, meter reads, outage analytics, hospitality analytics, workforce analytics, compliance reporting, financial reporting, and operational reporting.",
+    languages:
+      "SQL, Python, and JavaScript. Sarika uses SQL heavily for data analysis, validation, reconciliation, reporting, and dashboard support; Python for analysis and data-related tasks; and JavaScript/Node.js/Express for her AI portfolio agent project.",
+  },
+
+  certifications:
+    "CSPO, AWS Cloud Practitioner, Google AI Analytics, and Databricks AI-related learning.",
+
+  portfolioProject:
+    "Sarika built this AI Portfolio Agent using Gemini AI, Node.js, Express, JavaScript, and Render. The project demonstrates Gemini API integration, backend development, environment variable handling, API troubleshooting, frontend-backend communication, local recruiter-style responses, and cloud deployment.",
+};
+
+const sendResponse = (res, reply) => {
+  return res.json({
+    reply,
+    text: reply,
+    response: reply,
+    answer: reply,
+  });
+};
+
+const includesAny = (text, words) => {
+  return words.some((word) => text.includes(word));
+};
+
+const clientLine = (client) => {
+  return `${client.name} | ${client.role} | ${client.dates} | ${client.industry}`;
+};
+
 app.post("/api/agent", async (req, res) => {
   console.log("Agent route hit");
   console.log("Request body:", req.body);
   console.log("Gemini key loaded:", !!process.env.GEMINI_API_KEY);
 
-  const send = (reply) => {
-    return res.json({
-      reply,
-      text: reply,
-      response: reply,
-      answer: reply,
-    });
-  };
-
-  if (!process.env.GEMINI_API_KEY) {
-    return send(
-      "The backend is working, but the Gemini API key is not configured in Render. Please add GEMINI_API_KEY in Render Environment settings."
-    );
-  }
-
   try {
     let messages = [];
 
-    // Frontend sends array directly
     if (Array.isArray(req.body)) {
       messages = req.body;
-    }
-
-    // Frontend sends { messages: [...] }
-    else if (Array.isArray(req.body.messages)) {
+    } else if (Array.isArray(req.body.messages)) {
       messages = req.body.messages;
-    }
-
-    // Frontend sends { message: "hi" }
-    else if (typeof req.body.message === "string") {
+    } else if (typeof req.body.message === "string") {
       messages = [{ role: "user", content: req.body.message }];
-    }
-
-    // Frontend sends { prompt: "hi" }
-    else if (typeof req.body.prompt === "string") {
+    } else if (typeof req.body.prompt === "string") {
       messages = [{ role: "user", content: req.body.prompt }];
-    }
-
-    // Frontend sends { input: "hi" }
-    else if (typeof req.body.input === "string") {
+    } else if (typeof req.body.input === "string") {
       messages = [{ role: "user", content: req.body.input }];
     }
 
-    // Only keep user messages, not old assistant replies
     const cleanMessages = messages
       .filter((m) => m && m.role === "user")
       .filter((m) => typeof m.content === "string" && m.content.trim() !== "");
 
     if (cleanMessages.length === 0) {
-      return send("Please ask a question about Sarika's profile, skills, projects, or experience.");
+      return sendResponse(
+        res,
+        "Please ask a question about Sarika's resume, skills, projects, clients, education, cloud experience, dashboards, or business analyst background."
+      );
     }
 
     const latestQuestion = cleanMessages[cleanMessages.length - 1].content.trim();
     const lowerQuestion = latestQuestion.toLowerCase();
 
-    // Local answers to save Gemini quota
-    if (
-      lowerQuestion === "hi" ||
-      lowerQuestion === "hello" ||
-      lowerQuestion === "hey" ||
-      lowerQuestion === "hi!" ||
-      lowerQuestion === "hello!"
-    ) {
-      return send(
-        "Hello! I am Sarika's AI Portfolio Agent. You can ask me about Sarika's healthcare experience, current client, AI experience, AWS/cloud skills, SQL experience, dashboards, projects, and business analyst background."
+    const currentClient = resumeData.clients[0];
+    const previousClient = resumeData.clients[1];
+    const clientBeforePrevious = resumeData.clients[2];
+
+    if (["hi", "hello", "hey", "hi!", "hello!"].includes(lowerQuestion)) {
+      return sendResponse(
+        res,
+        "Hello! I am Sarika's AI Portfolio Agent. You can ask me about Sarika's current client, previous client, total experience, industries, projects, tools, cloud experience, dashboards, SQL, AI experience, or business analyst background."
       );
     }
 
     if (
-      lowerQuestion.includes("your name") ||
-      lowerQuestion.includes("who are you") ||
-      lowerQuestion.includes("what is your name")
+      includesAny(lowerQuestion, [
+        "email",
+        "e-mail",
+        "contact",
+        "linkedin",
+        "reach",
+      ])
     ) {
-      return send("I am Sarika's AI Portfolio Agent.");
-    }
-
-    if (
-      lowerQuestion.includes("what is this app") ||
-      lowerQuestion.includes("what this app") ||
-      lowerQuestion.includes("app for") ||
-      lowerQuestion.includes("purpose")
-    ) {
-      return send(
-        "This app is a basic AI-powered portfolio assistant. It helps visitors learn about Sarika's business analysis, data analysis, AI, cloud, dashboard, domain, project, and professional background."
+      return sendResponse(
+        res,
+        `You can contact Sarika by email at ${resumeData.email}. You can also view her LinkedIn profile here: ${resumeData.linkedin}. Phone number is not shared through this portfolio agent.`
       );
     }
 
     if (
-      lowerQuestion.includes("healthcare") ||
-      lowerQuestion.includes("health care") ||
-      lowerQuestion.includes("health industry") ||
-      lowerQuestion.includes("medical") ||
-      lowerQuestion.includes("claims") ||
-      lowerQuestion.includes("eligibility") ||
-      lowerQuestion.includes("hipaa")
+      includesAny(lowerQuestion, [
+        "your name",
+        "who are you",
+        "what is your name",
+      ])
     ) {
-      return send(
+      return sendResponse(res, "I am Sarika's AI Portfolio Agent.");
+    }
+
+    if (
+      includesAny(lowerQuestion, [
+        "what is this app",
+        "what this app",
+        "app for",
+        "purpose",
+        "portfolio agent",
+      ])
+    ) {
+      return sendResponse(
+        res,
+        "This app is a resume-based AI portfolio assistant. It helps recruiters and visitors ask questions about Sarika's experience, clients, projects, skills, tools, cloud platforms, dashboards, and business analysis background."
+      );
+    }
+
+    if (
+      includesAny(lowerQuestion, [
+        "education",
+        "degree",
+        "university",
+        "master",
+      ])
+    ) {
+      return sendResponse(res, resumeData.education);
+    }
+
+    if (
+      includesAny(lowerQuestion, [
+        "how many years",
+        "years of experience",
+        "total experience",
+        "experience does she have",
+        "overall experience",
+      ])
+    ) {
+      return sendResponse(
+        res,
+        `Sarika has ${resumeData.experienceYears}. Her resume experience spans Business Analyst, Senior Business Analyst, Data Business Analyst, Cloud/Data Business Analyst, and Data Analyst responsibilities across healthcare, utilities, hospitality, banking, payments, compliance, and enterprise reporting domains.`
+      );
+    }
+
+    if (
+      includesAny(lowerQuestion, [
+        "current client",
+        "present client",
+        "current project",
+        "currently working",
+        "current role",
+      ])
+    ) {
+      return sendResponse(
+        res,
+        `Sarika's current client is ${currentClient.name}, where she is working as a ${currentClient.role} from ${currentClient.dates}. Her current project is ${currentClient.project}. ${currentClient.summary}`
+      );
+    }
+
+    if (
+      includesAny(lowerQuestion, [
+        "previous client",
+        "last client",
+        "prior client",
+        "before current",
+        "client before bcbs",
+        "previous project",
+        "last project",
+      ])
+    ) {
+      return sendResponse(
+        res,
+        `Sarika's previous client before BCBS was ${previousClient.name}, where she worked as a ${previousClient.role} from ${previousClient.dates}. Her previous project was ${previousClient.project}. ${previousClient.summary}`
+      );
+    }
+
+    if (
+      includesAny(lowerQuestion, [
+        "before previous",
+        "before centerpoint",
+        "client before centerpoint",
+        "project before centerpoint",
+      ])
+    ) {
+      return sendResponse(
+        res,
+        `Before CenterPoint Energy, Sarika worked with ${clientBeforePrevious.name} as a ${clientBeforePrevious.role} from ${clientBeforePrevious.dates}. The project was ${clientBeforePrevious.project}. ${clientBeforePrevious.summary}`
+      );
+    }
+
+    if (
+      includesAny(lowerQuestion, [
+        "client history",
+        "all clients",
+        "clients list",
+        "list of clients",
+        "what clients",
+        "which clients",
+        "client details",
+        "client experience",
+      ])
+    ) {
+      const list = resumeData.clients.map((c, i) => `${i + 1}. ${clientLine(c)}`).join("\n");
+      return sendResponse(res, `Sarika's client history:\n${list}`);
+    }
+
+    if (
+      includesAny(lowerQuestion, [
+        "project history",
+        "all projects",
+        "project list",
+        "projects worked",
+        "what projects",
+        "which projects",
+      ])
+    ) {
+      const list = resumeData.clients
+        .map((c, i) => `${i + 1}. ${c.project} - ${c.name}, ${c.dates}`)
+        .join("\n");
+      return sendResponse(res, `Sarika's project experience includes:\n${list}\n7. AI Portfolio Agent - Built using Gemini AI, Node.js, Express, JavaScript, and Render.`);
+    }
+
+    if (
+      includesAny(lowerQuestion, [
+        "healthcare",
+        "health care",
+        "health industry",
+        "medical",
+        "claims",
+        "eligibility",
+        "hipaa",
+        "provider data",
+        "healthcare client",
+      ])
+    ) {
+      return sendResponse(
+        res,
         "Yes. Sarika has healthcare experience with Blue Cross Blue Shield (BCBS), FL and CHOC Healthcare, India. At BCBS, she supports healthcare claims, eligibility, provider data, billing, AI/ML requirements, AWS cloud data platforms, Snowflake, SQL validation, UAT coordination, and HIPAA-aligned documentation. At CHOC Healthcare, she supported clinical and operational analytics dashboards involving patient KPIs, claims metrics, provider performance, Tableau dashboards, AWS Glue, Apache Airflow, Jira, and healthcare compliance traceability."
       );
     }
 
     if (
-      lowerQuestion.includes("current client") ||
-      lowerQuestion.includes("recent client") ||
-      lowerQuestion.includes("latest client") ||
-      lowerQuestion.includes("present client") ||
-      lowerQuestion.includes("current project")
+      includesAny(lowerQuestion, [
+        "industry",
+        "industries",
+        "domain",
+        "domains",
+        "business domain",
+      ])
     ) {
-      return send(
-        "Sarika's current client is Blue Cross Blue Shield (BCBS), FL, where she is working as a Sr. Business Analyst from Nov 2025 – Present. Her work focuses on healthcare claims, eligibility, provider data, billing, AI/ML requirements, AWS cloud platforms, Snowflake, SQL validation, UAT, and healthcare data governance."
+      return sendResponse(
+        res,
+        `Sarika has domain experience in ${resumeData.skills.domains}`
       );
     }
 
     if (
-      lowerQuestion.includes("client") ||
-      lowerQuestion.includes("clients") ||
-      lowerQuestion.includes("worked with")
+      includesAny(lowerQuestion, [
+        "skill",
+        "skills",
+        "tools",
+        "technology",
+        "tech stack",
+        "technical skills",
+      ])
     ) {
-      return send(
-        "Sarika has worked with Blue Cross Blue Shield (BCBS), CenterPoint Energy, Hilton Worldwide, CHOC Healthcare, First Federal Credit Union, and Digitivy. Her domain experience includes healthcare, utilities, hospitality, banking, payments, compliance, reporting, and enterprise data analytics."
+      return sendResponse(
+        res,
+        `Sarika's key skills include:\nBusiness Analysis: ${resumeData.skills.businessAnalysis}\nData Analysis: ${resumeData.skills.dataAnalysis}\nBI/Reporting: ${resumeData.skills.dashboards}\nCloud/Data Platforms: ${resumeData.skills.cloud}`
       );
     }
 
     if (
-      lowerQuestion.includes("education") ||
-      lowerQuestion.includes("degree") ||
-      lowerQuestion.includes("university") ||
-      lowerQuestion.includes("master")
+      includesAny(lowerQuestion, [
+        "language",
+        "languages",
+        "programming",
+        "coding",
+        "javascript",
+        "python",
+      ])
     ) {
-      return send(
-        "Sarika has a Master's in Computer Technology from Eastern Illinois University."
+      return sendResponse(res, resumeData.skills.languages);
+    }
+
+    if (
+      /\bai\b/.test(lowerQuestion) ||
+      /\bml\b/.test(lowerQuestion) ||
+      includesAny(lowerQuestion, [
+        "artificial intelligence",
+        "machine learning",
+        "gemini",
+        "bedrock",
+        "sagemaker",
+        "ai experience",
+        "ml experience",
+      ])
+    ) {
+      return sendResponse(res, resumeData.skills.ai);
+    }
+
+    if (
+      includesAny(lowerQuestion, [
+        "cloud",
+        "cloud experience",
+        "cloud platforms",
+      ])
+    ) {
+      return sendResponse(
+        res,
+        `Sarika has cloud/data platform experience across AWS, GCP, and Azure-related environments. AWS: ${resumeData.skills.aws} GCP: ${resumeData.skills.gcp} Azure: ${resumeData.skills.azure}`
       );
     }
 
     if (
-      lowerQuestion.includes("skill") ||
-      lowerQuestion.includes("tools") ||
-      lowerQuestion.includes("technology") ||
-      lowerQuestion.includes("tech stack")
+      includesAny(lowerQuestion, [
+        "aws",
+        "s3",
+        "glue",
+        "redshift",
+        "athena",
+        "lambda",
+        "cloudwatch",
+      ])
     ) {
-      return send(
-        "Sarika's key skills include requirements gathering, BRDs, FRDs, user stories, acceptance criteria, gap analysis, process mapping, source-to-target mapping, UAT support, SQL, Python, Excel, Power BI, Tableau, Snowflake, Redshift, Oracle, BigQuery, AWS S3, Glue, Redshift, Athena, Jira, Confluence, Azure DevOps, Agile/Scrum, and AI/ML requirement documentation."
+      return sendResponse(res, resumeData.skills.aws);
+    }
+
+    if (
+      includesAny(lowerQuestion, ["gcp", "google cloud", "bigquery"])
+    ) {
+      return sendResponse(res, resumeData.skills.gcp);
+    }
+
+    if (
+      includesAny(lowerQuestion, ["azure", "azure devops"])
+    ) {
+      return sendResponse(res, resumeData.skills.azure);
+    }
+
+    if (
+      includesAny(lowerQuestion, [
+        "sql",
+        "data analysis",
+        "data analyst",
+        "data validation",
+        "reconciliation",
+        "data quality",
+      ])
+    ) {
+      return sendResponse(res, resumeData.skills.dataAnalysis);
+    }
+
+    if (
+      includesAny(lowerQuestion, [
+        "dashboard",
+        "dashboards",
+        "power bi",
+        "tableau",
+        "reporting",
+        "kpi",
+        "reports",
+      ])
+    ) {
+      return sendResponse(res, resumeData.skills.dashboards);
+    }
+
+    if (
+      includesAny(lowerQuestion, [
+        "banking",
+        "payment",
+        "payments",
+        "ach",
+        "swift",
+        "aml",
+        "sox",
+        "basel",
+        "treasury",
+      ])
+    ) {
+      const banking = resumeData.clients[4];
+      return sendResponse(
+        res,
+        `Sarika has banking and payments experience with ${banking.name}, where she worked as a ${banking.role} from ${banking.dates}. ${banking.summary}`
       );
     }
 
     if (
-      lowerQuestion.includes("ai") ||
-      lowerQuestion.includes("ml") ||
-      lowerQuestion.includes("gemini") ||
-      lowerQuestion.includes("bedrock") ||
-      lowerQuestion.includes("sagemaker")
+      includesAny(lowerQuestion, [
+        "utilities",
+        "utility",
+        "billing",
+        "meter",
+        "outage",
+        "centerpoint",
+      ])
     ) {
-      return send(
-        "Sarika has AI experience through AI/ML requirement gathering for healthcare claims and eligibility workflows, AWS Bedrock and SageMaker-related requirement discussions, model input/output validation rules, AI use-case documentation, and this AI Portfolio Agent project built with Gemini AI, Node.js, Express, JavaScript, and Render."
+      const utilities = resumeData.clients[1];
+      return sendResponse(
+        res,
+        `Sarika has utilities experience with ${utilities.name}, where she worked as a ${utilities.role} from ${utilities.dates}. ${utilities.summary}`
       );
     }
 
     if (
-      lowerQuestion.includes("aws") ||
-      lowerQuestion.includes("cloud") ||
-      lowerQuestion.includes("s3") ||
-      lowerQuestion.includes("glue") ||
-      lowerQuestion.includes("redshift") ||
-      lowerQuestion.includes("athena")
+      includesAny(lowerQuestion, [
+        "hospitality",
+        "hilton",
+        "workforce",
+        "hr",
+        "labor",
+      ])
     ) {
-      return send(
-        "Sarika has AWS cloud and data platform experience with S3, Glue, Redshift, Athena, RDS, Lambda, CloudWatch, Bedrock, and SageMaker exposure. She has supported cloud data pipeline requirements, ETL validation, source-to-target mapping, cloud migration support, Snowflake analytics, BigQuery reporting, and AWS-connected dashboard projects."
+      const hospitality = resumeData.clients[2];
+      return sendResponse(
+        res,
+        `Sarika has hospitality and enterprise data experience with ${hospitality.name}, where she worked as a ${hospitality.role} from ${hospitality.dates}. ${hospitality.summary}`
       );
     }
 
     if (
-      lowerQuestion.includes("sql") ||
-      lowerQuestion.includes("data analysis") ||
-      lowerQuestion.includes("data analyst") ||
-      lowerQuestion.includes("data validation") ||
-      lowerQuestion.includes("reconciliation")
+      includesAny(lowerQuestion, [
+        "business analyst",
+        "ba experience",
+        "requirements",
+        "user stories",
+        "acceptance criteria",
+        "brd",
+        "frd",
+        "process mapping",
+        "data mapping",
+      ])
     ) {
-      return send(
-        "Sarika uses SQL for data extraction, validation, reconciliation, reporting, dashboard support, audit checks, claims validation, billing reconciliation, payment analysis, financial reporting, and operational KPI analysis. She has worked with Snowflake SQL, Redshift SQL, Oracle SQL, Athena, RDS, and BigQuery."
+      return sendResponse(res, resumeData.skills.businessAnalysis);
+    }
+
+    if (
+      includesAny(lowerQuestion, [
+        "agile",
+        "uat",
+        "jira",
+        "confluence",
+        "scrum",
+        "sprint",
+      ])
+    ) {
+      return sendResponse(res, resumeData.skills.agile);
+    }
+
+    if (
+      includesAny(lowerQuestion, [
+        "certification",
+        "certifications",
+        "certified",
+        "cspo",
+      ])
+    ) {
+      return sendResponse(res, resumeData.certifications);
+    }
+
+    if (
+      includesAny(lowerQuestion, [
+        "why should",
+        "recruiter",
+        "good fit",
+        "hire",
+        "strength",
+        "value",
+      ])
+    ) {
+      return sendResponse(
+        res,
+        "Recruiters should consider Sarika because she combines business analysis, data analysis, cloud data platform knowledge across AWS, GCP, and Azure-related environments, AI/ML requirements exposure, SQL validation, dashboard/reporting experience, Agile delivery, and strong domain knowledge across healthcare, utilities, hospitality, and banking. She can work with stakeholders, product owners, data engineers, QA teams, and business users to turn business needs into clear, testable, and deliverable solutions."
       );
     }
 
     if (
-      lowerQuestion.includes("dashboard") ||
-      lowerQuestion.includes("power bi") ||
-      lowerQuestion.includes("tableau") ||
-      lowerQuestion.includes("reporting") ||
-      lowerQuestion.includes("kpi")
+      includesAny(lowerQuestion, [
+        "weather",
+        "stock",
+        "news",
+        "today's weather",
+        "current news",
+      ])
     ) {
-      return send(
-        "Sarika has strong dashboard and reporting experience using Power BI, Tableau, Excel, Snowflake, Redshift, BigQuery, Oracle, and SQL. She has supported dashboards for healthcare KPIs, claims metrics, provider performance, billing trends, outage response, revenue performance, workforce analytics, labor reporting, treasury, liquidity, and compliance reporting."
+      return sendResponse(
+        res,
+        "This portfolio agent does not currently have live external tools for weather, stock prices, or real-time news. It is focused on answering questions about Sarika's resume, skills, clients, projects, and professional background."
       );
     }
 
-    if (
-      lowerQuestion.includes("banking") ||
-      lowerQuestion.includes("payment") ||
-      lowerQuestion.includes("ach") ||
-      lowerQuestion.includes("swift") ||
-      lowerQuestion.includes("aml") ||
-      lowerQuestion.includes("sox") ||
-      lowerQuestion.includes("basel")
-    ) {
-      return send(
-        "Sarika has banking and payments experience with First Federal Credit Union, India. Her work includes credit, deposits, treasury, compliance reporting, ACH, SWIFT, Letters of Credit, AML, SOX, Basel III, SQL validation, Python analysis, Power BI dashboards, data warehouse support, BRDs, FRDs, process flows, and payment lifecycle documentation."
+    // Gemini fallback for uncommon resume questions
+    if (!process.env.GEMINI_API_KEY) {
+      return sendResponse(
+        res,
+        "I can answer common resume questions locally. Try asking about current client, previous client, years of experience, cloud experience, dashboards, SQL, projects, industries, or education."
       );
     }
 
-    if (
-      lowerQuestion.includes("utilities") ||
-      lowerQuestion.includes("utility") ||
-      lowerQuestion.includes("billing") ||
-      lowerQuestion.includes("meter") ||
-      lowerQuestion.includes("outage")
-    ) {
-      return send(
-        "Sarika has utilities experience with CenterPoint Energy, TX as a Business Analyst – Data and Analytics from Nov 2024 – Oct 2025. She supported billing, meter-read, outage, customer, payment, revenue reporting, AWS analytics requirements, source-to-target mappings, ETL validation, Power BI/Tableau dashboards, SQL reconciliation, PowerApps, Power Automate, and Agile delivery."
-      );
-    }
-
-    if (
-      lowerQuestion.includes("hospitality") ||
-      lowerQuestion.includes("hilton") ||
-      lowerQuestion.includes("workforce") ||
-      lowerQuestion.includes("hr") ||
-      lowerQuestion.includes("labor")
-    ) {
-      return send(
-        "Sarika has hospitality and enterprise data experience with Hilton Worldwide, VA as a Business Analyst – Enterprise Data from Dec 2022 – Oct 2024. She supported HR, finance, operations, workforce analytics, labor reporting, Power BI/Tableau dashboards, AWS S3/Glue/Redshift data integration, SQL analysis, Salesforce process improvements, Jira documentation, Agile ceremonies, and UAT sessions."
-      );
-    }
-
-    if (
-      lowerQuestion.includes("business analyst") ||
-      lowerQuestion.includes("ba experience") ||
-      lowerQuestion.includes("requirements") ||
-      lowerQuestion.includes("user stories") ||
-      lowerQuestion.includes("acceptance criteria")
-    ) {
-      return send(
-        "As a Business Analyst, Sarika gathers and documents requirements, creates BRDs and FRDs, writes user stories and acceptance criteria, conducts gap analysis, process mapping, impact analysis, source-to-target mapping, UAT coordination, backlog refinement, stakeholder communication, dashboard requirements, data validation rules, and release support across healthcare, utilities, hospitality, and banking domains."
-      );
-    }
-
-    if (
-      lowerQuestion.includes("agile") ||
-      lowerQuestion.includes("uat") ||
-      lowerQuestion.includes("jira") ||
-      lowerQuestion.includes("confluence") ||
-      lowerQuestion.includes("scrum")
-    ) {
-      return send(
-        "Sarika supports Agile teams through sprint planning, backlog grooming, demos, retrospectives, PI planning, user story creation, acceptance criteria definition, Jira tracking, Confluence documentation, UAT test scenario preparation, defect tracking, QA coordination, stakeholder sign-off, and release validation."
-      );
-    }
-
-    if (
-      lowerQuestion.includes("project") ||
-      lowerQuestion.includes("projects") ||
-      lowerQuestion.includes("portfolio project")
-    ) {
-      return send(
-        "Some of Sarika's project experience includes AI-Driven Claims Adjudication Platform, Utility Customer Analytics and Billing Intelligence Platform, Global Workforce Analytics and Labor Reporting Platform, Clinical Operations Analytics and Compliance Dashboard Suite, Banking Payments and Regulatory Reporting Platform, and this AI Portfolio Agent built with Gemini AI, Node.js, Express, JavaScript, and Render."
-      );
-    }
-
-    if (
-      lowerQuestion.includes("recruiter") ||
-      lowerQuestion.includes("why should") ||
-      lowerQuestion.includes("good fit") ||
-      lowerQuestion.includes("hire")
-    ) {
-      return send(
-        "Recruiters should consider Sarika because she combines business analysis, data analysis, cloud data platform knowledge, AI/ML requirements exposure, SQL validation, dashboard/reporting experience, Agile delivery, and strong domain knowledge across healthcare, utilities, hospitality, and banking. She can work with stakeholders, product owners, data engineers, QA teams, and business users to turn business needs into clear, testable, and deliverable solutions."
-      );
-    }
-
-    if (
-      lowerQuestion.includes("contact") ||
-      lowerQuestion.includes("linkedin") ||
-      lowerQuestion.includes("reach")
-    ) {
-      return send(
-        "You can view Sarika's LinkedIn profile here: https://www.linkedin.com/in/sarika-reddy-v/"
-      );
-    }
-
-    if (
-      lowerQuestion.includes("weather") ||
-      lowerQuestion.includes("stock") ||
-      lowerQuestion.includes("news") ||
-      lowerQuestion.includes("today")
-    ) {
-      return send(
-        "This portfolio agent does not currently have live external tools for weather, stock prices, or real-time news. It is focused on answering questions about Sarika's portfolio, skills, projects, and professional background."
-      );
-    }
-
-    // Fallback Gemini prompt for uncommon questions
-    const portfolioContext = `
+    const prompt = `
 You are Sarika's AI Portfolio Agent.
 
-Answer questions about Sarika's professional background using the profile below.
-
-Privacy rules:
-- Do not reveal phone number or email.
-- Do not mention education graduation year.
-- Do not mention Ph.D. or doctoral education.
-- If asked for contact details, provide only LinkedIn: https://www.linkedin.com/in/sarika-reddy-v/
+Use only the resume profile below. Do not reveal phone number. Email and LinkedIn can be shared.
 
 Profile:
-- Name to use publicly: Sarika
-- Education: Master's in Computer Technology, Eastern Illinois University
-- Current client: Blue Cross Blue Shield (BCBS), FL
-- Current role: Sr. Business Analyst
-- Current duration: Nov 2025 – Present
-- Professional focus: Business Analyst, Senior Business Analyst, Data Business Analyst, Cloud/Data Business Analyst, and Data Analyst roles
+Name: Sarika
+Email: ${resumeData.email}
+LinkedIn: ${resumeData.linkedin}
+Education: ${resumeData.education}
+Experience: ${resumeData.experienceYears}
+Current focus: ${resumeData.currentFocus}
 
-Experience summary:
-Sarika has 7+ years of IT experience supporting enterprise systems, healthcare claims, eligibility, AI/ML requirements, AWS cloud data platforms, Snowflake analytics, Power BI/Tableau dashboards, SQL validation, ETL requirements, Agile delivery, stakeholder communication, and business process improvement.
-
-Domains:
-Healthcare, utilities, hospitality, banking, financial services, payments, compliance reporting, workforce analytics, revenue reporting, customer analytics, and operational analytics.
-
-Clients:
-- Blue Cross Blue Shield (BCBS), FL | Sr. Business Analyst | Nov 2025 – Present
-- CenterPoint Energy, TX | Business Analyst – Data and Analytics | Nov 2024 – Oct 2025
-- Hilton Worldwide, VA | Business Analyst – Enterprise Data | Dec 2022 – Oct 2024
-- CHOC Healthcare, India | Business Analyst – Clinical Analytics | Mar 2020 – May 2021
-- First Federal Credit Union, India | Business Analyst – Banking and Payments | Aug 2018 – Mar 2020
-- Digitivy, India | Business Analyst Intern | Aug 2017 – Dec 2017
+Client history:
+${resumeData.clients.map((c, i) => `${i + 1}. ${clientLine(c)}. Project: ${c.project}. Summary: ${c.summary}. Tools: ${c.tools}`).join("\n")}
 
 Skills:
-Requirements gathering, BRDs, FRDs, user stories, acceptance criteria, gap analysis, process mapping, source-to-target mapping, UAT, Jira, Confluence, Agile/Scrum, SQL, Python, Excel, Power BI, Tableau, Snowflake, Redshift, Oracle, BigQuery, AWS S3, Glue, Redshift, Athena, RDS, Lambda, CloudWatch, Bedrock, SageMaker, AI/ML requirements, and dashboard reporting.
-
-Projects:
-AI-Driven Claims Adjudication Platform, Utility Customer Analytics and Billing Intelligence Platform, Global Workforce Analytics and Labor Reporting Platform, Clinical Operations Analytics and Compliance Dashboard Suite, Banking Payments and Regulatory Reporting Platform, and AI Portfolio Agent built with Gemini AI, Node.js, Express, JavaScript, and Render.
-
-Rules:
-- Always answer as Sarika's AI Portfolio Agent.
-- Keep answers professional, recruiter-friendly, and short.
-- Sarika does have healthcare experience.
-- Sarika does have current client experience.
-- Do not say healthcare, current client, AI, AWS, SQL, dashboard, Agile, UAT, banking, utilities, or hospitality details are missing.
-`;
-
-    const prompt = `${portfolioContext}
+Business Analysis: ${resumeData.skills.businessAnalysis}
+Data Analysis: ${resumeData.skills.dataAnalysis}
+Dashboards: ${resumeData.skills.dashboards}
+Cloud: ${resumeData.skills.cloud}
+AI: ${resumeData.skills.ai}
+Agile: ${resumeData.skills.agile}
+Languages: ${resumeData.skills.languages}
+Certifications: ${resumeData.certifications}
 
 User question:
 ${latestQuestion}
 
-Answer as Sarika's AI Portfolio Agent. Keep the answer professional, specific, and short.`;
+Answer like a recruiter-friendly portfolio assistant. Be specific, short, and accurate.
+`;
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`,
@@ -398,37 +663,37 @@ Answer as Sarika's AI Portfolio Agent. Keep the answer professional, specific, a
     if (!response.ok) {
       console.error("Gemini API error:", data);
 
-      // Do not break frontend if Gemini quota is exhausted
       if (response.status === 429) {
-        return send(
-          "Gemini daily quota is currently reached, but I can still answer common portfolio questions. Try asking about Sarika's healthcare experience, current client, AI experience, AWS skills, SQL experience, dashboards, projects, or business analyst background."
+        return sendResponse(
+          res,
+          "Gemini daily quota is currently reached, but I can still answer common resume questions. Try asking about current client, previous client, years of experience, cloud experience, dashboards, SQL, projects, industries, education, or certifications."
         );
       }
 
-      return send(
+      return sendResponse(
+        res,
         data.error?.message ||
-          "Gemini is currently unavailable. Please ask a portfolio-related question such as healthcare experience, current client, AI experience, AWS skills, SQL, dashboards, or projects."
+          "Gemini is currently unavailable. Please ask a resume-related question such as current client, previous client, cloud experience, dashboards, SQL, projects, or education."
       );
     }
 
     const reply =
       data.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "I can help with Sarika's portfolio, skills, projects, and experience. Please ask a portfolio-related question.";
+      "I can help with Sarika's resume, clients, projects, skills, and experience. Please ask a resume-related question.";
 
-    return send(reply);
+    return sendResponse(res, reply);
   } catch (err) {
     console.error("Server error:", err);
 
-    return send(
-      "The server handled the request, but something went wrong. Please ask about Sarika's healthcare experience, current client, AI experience, AWS/cloud skills, SQL, dashboards, projects, or business analyst background."
+    return sendResponse(
+      res,
+      "The server handled the request, but something went wrong. Please ask about Sarika's current client, previous client, experience, projects, cloud skills, dashboards, SQL, or business analyst background."
     );
   }
 });
 
-// Serve frontend files after API routes
 app.use(express.static(path.join(__dirname, "../frontend")));
 
-// Safe fallback route
 app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/index.html"));
 });
